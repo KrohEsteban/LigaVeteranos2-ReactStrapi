@@ -1,0 +1,73 @@
+/* footer */
+
+ html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  padding-bottom: 6rem;
+  min-height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.demo {
+  margin: 0 auto;
+  padding-top: 32px;
+  max-width: 640px;
+  width: 94%;
+}
+
+
+.footnav{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    text-align: center;
+    background-color: #0D6EFD;
+    width: 100%;
+    padding: 10px;
+    
+  }
+  
+  .footnav p{
+    color: white;
+    font-size: 1em;
+    
+    align-self: center;
+    margin: 0px;
+  }
+  
+  .footnav a{ 
+    color: white;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.5em;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+  
+  @media (max-width: 500px){
+    .footnav p{
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 325px){
+    .footnav p{
+        font-size: 1.2em;
+    }
+    .footnav a{ 
+        font-size: 1.5em;
+    }
+  }
+  

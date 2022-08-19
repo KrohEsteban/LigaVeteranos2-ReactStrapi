@@ -11,3 +11,31 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.divisiontablas{
+  border-top: solid 3px black ;
+  padding-bottom: 40px;
+}
+
+.bordebottom{
+  border-bottom: solid 1px black ;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.cardbordertop{
+  box-shadow: 10px 10px #888888;
+  
+}
+
+.imagenmax{
+  max-width: 400px !important;
+
+}
+@media(max-width:575px){
+
+  .cardbordertop{
+    width: 90% !important;
+  }
+}
+
