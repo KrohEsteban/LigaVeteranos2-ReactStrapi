@@ -13,7 +13,7 @@ import Container from 'react-bootstrap/Container';
 
 
 const client = new ApolloClient({
-  uri: "http://localhost:1337/graphql/",
+  uri: "https://vps-2787421-x.dattaweb.com/backend/graphql/",
   cache: new InMemoryCache()
 });
 

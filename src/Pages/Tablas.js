@@ -11,8 +11,8 @@ export default function Tablas() {
     
     // pedimos datos del servidor
     const EQUIPO = gql`
-    query {
-        equipos {
+    query  {
+        equipos (sort: "Puntos:desc", pagination: { start: 0, limit: 1000 }){
             data {
                 id,
                 attributes{
@@ -25,6 +25,7 @@ export default function Tablas() {
                     GolesAFavor,
                     GolesEnContra,
                     DiferenciaDeGoles,
+                    Grupo,
                     categoria{
                         data{
                             attributes{
@@ -51,7 +52,12 @@ export default function Tablas() {
     // recolectamos las categorias para mostrar varios cuadros
     let cat= new Set(); // si se repite no lo agrega al arreglo
     data.equipos.data.forEach((item)=>{
-        cat.add(item.attributes.categoria.data.attributes.Nombre)
+        if (item.attributes.Grupo===null){
+            cat.add(item.attributes.categoria.data.attributes.Nombre)
+        }else{
+            cat.add(item.attributes.categoria.data.attributes.Nombre+" - grupo "+item.attributes.Grupo)
+        }
+        
     })
     const categorias=[...cat]; // asignamos el set a un arreglo para poder mapear
 
@@ -65,17 +71,23 @@ export default function Tablas() {
         let cont=0;
 
         
-        //ordena y guarda en goleadores solo a los que tienen goles
+        //ordena y guarda en puntos los de la misma categoría
         data.equipos.data.forEach((item) => {
-        
-            if((item.attributes.categoria.data.attributes.Nombre === categoria)){
-                
+            
+            if (item.attributes.Grupo===null){
+                if(item.attributes.categoria.data.attributes.Nombre === categoria){
                     puntos[cont]=item;
-                    
+                    cont=cont+1;
                 }
+            }else{
+                if((item.attributes.categoria.data.attributes.Nombre+" - grupo "+item.attributes.Grupo) === categoria){
+                    puntos[cont]=item;
+                    cont=cont+1;
+                }
+            }
+            
         
-                cont=cont+1;
-            })
+        })
 
         
     

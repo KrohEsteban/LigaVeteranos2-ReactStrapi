@@ -6,18 +6,18 @@ import Button from 'react-bootstrap/Button';
 import { CATEGORIA, PARTIDOS } from "../Components/DataServer";
 import { Waypoint } from 'react-waypoint';
 import { useQuery } from "@apollo/client";
+import { ButtonGroup, ButtonToolbar } from "react-bootstrap";
 
 
 
 export default function Fechas() {
 
-    const { data, loading, error, fetchMore } = useQuery(PARTIDOS,{
-        variables: { start: 0 },
-      });
+    const { data, loading, error, fetchMore } = useQuery(PARTIDOS);
 
     const { data: datacategoria, loading: loadingcategoria, error: errorcategoria } = useQuery(CATEGORIA);
 
     const [categoriaactual, setCategoriaactual] = useState("Todos");
+    const [fechaactual, setFechaactual] = useState("Todas");
 
     //contador para ver si no encuentra ningun partido dentro del arreglo con la categoria que eligio
     let haypartidos=0; 
@@ -33,10 +33,22 @@ export default function Fechas() {
             </>
         
         )
-    }else{       
+    }else{   
+        
+        
+    // recolectamos las fechas para mostrar 
+    let fech= new Set(); // si se repite no lo agrega al arreglo
+    data.partidos.data.forEach((item)=>{
+        fech.add(item.attributes.Fecha)
+    })
+    const fechas=[...fech]; // asignamos el set a un arreglo para poder mapear
 
+    // ordena el arreglo
+    fechas.sort(function(a, b) {
+        return a - b;
+      });
 
-    function ajustar(nuevacategoria){
+    function ajustarcategoria(nuevacategoria){
 
         
         if(nuevacategoria==="Todos"){
@@ -44,6 +56,19 @@ export default function Fechas() {
         }else{
         
             setCategoriaactual(nuevacategoria);
+        }
+        
+        
+    }
+
+    function ajustarfecha(nuevafecha){
+
+        
+        if(nuevafecha==="Todas"){
+            setFechaactual("Todas");
+        }else{
+        
+            setFechaactual(nuevafecha);
         }
         
         
@@ -60,22 +85,53 @@ export default function Fechas() {
         
         <Container>
             <Row>
-                <Col xs="12" lg="auto" className="pb-4"><h2>Filtar por categoría:</h2></Col>
-                
+                <Col xs="12" lg="auto" className=" d-flex align-items-center justify-content-center"><h2>Filtar por categoría:</h2></Col>
                 <Col className="d-flex align-items-center justify-content-center">
-                    <Button variant="success" className="text-nowrap" onClick={()=>ajustar("Todos")} >Mostrar todos</Button> {' '}
-                </Col>
-                {datacategoria.categorias.data.map((item)=>{
-
-                    return(
-                        <Col key={item.id} className="d-flex align-items-center justify-content-center">
-                            <Button variant="success" className="m-1" onClick={()=>ajustar(item.attributes.Nombre)} >{item.attributes.Nombre}</Button> {' '}
-                        </Col>
-                        
-                    )
-                })}
-
+                <ButtonToolbar size="lg" className="mb-2">
+                    <ButtonGroup size="lg" className="buttonfecha">
+                        <Button className="text-nowrap boton" onClick={()=>ajustarcategoria("Todos")} >Mostrar todos</Button>
                
+                        {datacategoria.categorias.data.map((item)=>{
+
+                            return(
+                                
+                                <Button className="boton" key={item.id} onClick={()=>ajustarcategoria(item.attributes.Nombre)} >{item.attributes.Nombre}</Button> 
+                                
+                            )
+                        })}
+                        </ButtonGroup>
+                    </ButtonToolbar>
+                </Col>
+                
+                
+                
+            </Row>
+            
+        
+
+        
+        </Container>
+
+        <Container>
+            <Row>
+                <Col xs="12" lg="auto" className=" d-flex align-items-center justify-content-center"><h2>Filtar por fecha:</h2></Col>
+                <Col className="d-flex align-items-center justify-content-center">
+                <ButtonToolbar size="lg" className="mb-2">
+                    <ButtonGroup size="lg" className="buttonfecha">
+                        <Button className="text-nowrap boton" onClick={()=>ajustarfecha("Todas")} >Mostrar todos</Button>
+               
+                        {fechas.map((item)=>{
+
+                            return(
+                                
+                                <Button className="boton" key={item} onClick={()=>ajustarfecha(item)} >{item}</Button> 
+                                
+                            )
+                        })}
+                        </ButtonGroup>
+                    </ButtonToolbar>
+                </Col>
+                
                 
                 
             </Row>
@@ -87,14 +143,32 @@ export default function Fechas() {
         
              
         {data.partidos.data.map((item,i)=>{
-
-            let dia =item.attributes.Dia.slice(8, 10);
-            let mes =item.attributes.Dia.slice(5, 7);
-            let anio =item.attributes.Dia.slice(2, 4);
-            let hora = item.attributes.Hora.slice(0, 5);
+            let hayfecha;
+            let hayhora;
+            let dia;
+            let mes;
+            let anio;
+            let hora;
+            
+            if (item.attributes.Dia === null){
+                hayfecha = false;
+            }else{
+                hayfecha=true;
+                dia =item.attributes.Dia.slice(8, 10);
+                mes =item.attributes.Dia.slice(5, 7);
+                anio =item.attributes.Dia.slice(2, 4);
+               
+            }
+            
+            if (item.attributes.Hora=== null){
+                hayhora= false;
+            }else{
+                hayhora=true;
+                 hora = item.attributes.Hora.slice(0, 5);
+            }
             
             
-            if((item.attributes.categoria.data.attributes.Nombre===categoriaactual)||(categoriaactual==="Todos")){
+            if(((item.attributes.categoria.data.attributes.Nombre===categoriaactual)||(categoriaactual==="Todos"))&&((item.attributes.Fecha===fechaactual)||(fechaactual==="Todas"))){
             
             
                 if ((item.attributes.Equipo1.Resultado===null)&&(item.attributes.Equipo1.Resultado===null)){
@@ -103,34 +177,17 @@ export default function Fechas() {
                     
                     <Container key={item.id} className="card cardbordertop p-3 mt-5 largletra">
                     
-                    {(data.partidos.data.length-1) === i &&
-                        <Waypoint onEnter={
-                            ()=> {
-                            
-                                fetchMore({
-                                    variables:{start:data.partidos.data.length},
-                                    updateQuery:(prevResult, {fetchMoreResult} )=>{
-                               
-                                        fetchMoreResult.partidos.data= [...prevResult.partidos.data, ...fetchMoreResult.partidos.data];
-                                        return fetchMoreResult;
-                                    }
-                                })
-                            }
-                        }/>
-                       
-                    }
+                    
 
                     <Row >
-                        <Col xs="12" className="text-center"> <h5 >Fecha {item.attributes.Fecha}</h5> <h5>{dia}/{mes}/{anio} - {hora}</h5></Col>
-                        <Col xs="12" className="d-flex align-items-center justify-content-center"> <h5>Cancha: {item.attributes.Cancha}</h5></Col>
+                        <Col xs="12" className="text-center"> <h5 >Fecha {item.attributes.Fecha}</h5> <h5>{hayfecha? dia +"/"+mes+"/"+anio : "Día a confirmar"} - {hayhora? hora: "Hora a confirmar"}</h5></Col>
+                        <Col xs="12" className="d-flex align-items-center justify-content-center"> <h5>Cancha: {(item.attributes.Cancha===null)? "A Confirmar" : item.attributes.Cancha}</h5></Col>
                         <Col xs="12" className="d-flex align-items-center justify-content-center"> <h5>Categoría: {item.attributes.categoria.data.attributes.Nombre}</h5></Col>
                         <Col xs="12" className="bordebottom"></Col>
                     </Row> 
                     <Row >  
                         
                         <Col xs="12" sm="5" className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo1.equipo.data.attributes.Nombre}</h5> </Col>
-
-                    
                         <Col xs="12" sm="2" className=" d-flex align-items-center justify-content-center"><h3> VS </h3></Col>
                         <Col xs="12" sm="5" className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo2.equipo.data.attributes.Nombre}</h5></Col>
                         
@@ -148,39 +205,24 @@ export default function Fechas() {
                         
                         <Container key={item.id} className="card cardbordertop p-3 mt-5 largletra">
                         
-                        {(data.partidos.data.length-1) === i &&
-                            <Waypoint onEnter={
-                                ()=> {
-                                
-                                    fetchMore({
-                                        variables:{start:data.partidos.data.length},
-                                        updateQuery:(prevResult, {fetchMoreResult} )=>{
-                                    
-                                            fetchMoreResult.partidos.data= [...prevResult.partidos.data, ...fetchMoreResult.partidos.data];
-                                            return fetchMoreResult;
-                                        }
-                                    })
-                                }
-                            }/>
-                        
-                        }
+                       
                     
                         <Row >
-                            <Col xs="12" className="text-center"> <h5 >Fecha {item.attributes.Fecha}</h5> <h5>{dia}/{mes}/{anio} - {hora}</h5></Col>
+                            <Col xs="12" className="text-center"> <h5 >Fecha {item.attributes.Fecha}</h5> <h5>{hayfecha? dia +"/"+mes+"/"+anio : "Día a confirmar"} - {hayhora? hora: "Hora a confirmar"}</h5></Col>
                             <Col xs="12"  className="d-flex align-items-center justify-content-center"> <h5>Cancha: {item.attributes.Cancha}</h5></Col>
                             <Col xs="12" className="d-flex align-items-center justify-content-center"> <h5>Categoría: {item.attributes.categoria.data.attributes.Nombre}</h5></Col>
                             <Col xs="12" className="bordebottom"></Col>
                         </Row> 
                         <Row >  
                             
-                            <Col xs="5" sm={{span: 3, order: 1}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo1.equipo.data.attributes.Nombre}</h5></Col>
-                            <Col xs="2" sm={{span: 1, order: 7}} className=" d-flex align-items-center justify-content-center"><h5>-</h5></Col>
-                            <Col xs="5" sm={{span: 1, order:'first'}} className=" d-flex align-items-center justify-content-center"><h5>{5 + item.attributes.Equipo1.Resultado}</h5></Col>
-                        
-                            <Col xs="12" sm={{span: 2, order: 2}} className=" d-flex align-items-center justify-content-center"><h3> VS </h3></Col>
-                            <Col xs="5" sm={{span: 3, order: 3}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo2.equipo.data.attributes.Nombre}</h5></Col>
-                            <Col xs="2" sm={{span: 1, order: 4}} className=" d-flex align-items-center justify-content-center"><h5>-</h5></Col>
-                            <Col xs="5" sm={{span: 1, order: 5}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo2.Resultado}</h5></Col>
+                            <Col xs="12" sm={{span: 3, order: 1}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo1.equipo.data.attributes.Nombre}</h5></Col> 
+                            <Col xs="12" sm={{span: 1, order:'first'}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo1.Resultado}</h5></Col>
+                            <Col xs="4" sm={{span: 1, order: 7}} className=" d-flex align-items-center justify-content-center"><h5>-</h5></Col>
+                            <Col xs="4" sm={{span: 2, order: 2}} className=" d-flex align-items-center justify-content-center"><h3> VS </h3></Col>
+                            <Col xs="4" sm={{span: 1, order: 4}} className=" d-flex align-items-center justify-content-center"><h5>-</h5></Col>
+                            <Col xs="12" sm={{span: 1, order: 5}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo2.Resultado}</h5></Col>
+                            <Col xs="12" sm={{span: 3, order: 3}} className=" d-flex align-items-center justify-content-center"><h5>{item.attributes.Equipo2.equipo.data.attributes.Nombre}</h5></Col>
+                            
                         
                         </Row>
                         
@@ -193,27 +235,7 @@ export default function Fechas() {
             }else{
                 //sumamos si no hay partidos para mostrar
                 haypartidos++;
-                return (
-                
-                        <React.Fragment key={item.id}>
-                
-                        {(data.partidos.data.length-1) === i &&
-                            <Waypoint  onEnter={
-                                ()=> {
-                                
-                                    fetchMore({
-                                        variables:{start:data.partidos.data.length},
-                                        updateQuery:(prevResult, {fetchMoreResult} )=>{
-                                            fetchMoreResult.partidos.data= [...prevResult.partidos.data, ...fetchMoreResult.partidos.data];
-                                            return fetchMoreResult;
-                                        }
-                                    })
-                                }
-                            }/>
-                        
-                        }
-                    </React.Fragment>
-                );
+                return 
             }
             
           

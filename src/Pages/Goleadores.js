@@ -9,8 +9,8 @@ export default function Goleadores() {
 
     // pedimos datos del servidor
     const JUGADOR = gql`
-    query {
-        jugadores {
+    query  {
+        jugadores (sort: "Goles:desc", pagination: { start: 0, limit: 1000 }){
             data {
                 id,
                 attributes{
@@ -20,7 +20,8 @@ export default function Goleadores() {
                     equipo{
                         data{
                             attributes{
-                                Nombre, 
+                                Nombre,
+                                Grupo, 
                                 categoria{
                                     data{
                                         attributes{
@@ -46,16 +47,20 @@ export default function Goleadores() {
     if (loading) return "Loading...";
     if (error) return <p>{error.message}</p>
       
-
     // recolectamos las categorias para mostrar varios cuadros
     let cat= new Set(); // si se repite no lo agrega al arreglo
     data.jugadores.data.forEach((item)=>{
-        cat.add(item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre)
+        if (item.attributes.equipo.data.attributes.Grupo===null){
+            cat.add(item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre)
+        }else{
+            cat.add(item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre+" - grupo "+item.attributes.equipo.data.attributes.Grupo)
+        }
+        
     })
     const categorias=[...cat]; // asignamos el set a un arreglo para poder mapear
 
-   
-
+    categorias.sort() // ordena las categorias para mostrarlas siempre iguales
+    
     //funcion para mostrar los datos en tabla y ordenados
 
     function tabla(categoria){
@@ -68,22 +73,44 @@ export default function Goleadores() {
         //ordena y guarda en goleadores solo a los que tienen goles
         data.jugadores.data.forEach((item) => {
         
-            if((item.attributes.Goles !== null)&&(item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre === categoria)){
-                if (cont=== 0){
-                    primero=item;
-                    ultimo=item;
-                    goleadores[cont]=item;
-                }else if (item.attributes.Goles >= primero.attributes.Goles){
-                    goleadores.unshift(item); // manda al goleador al primer lugar desplazando el resto
-                    primero= item;
-                    
-                }else if (item.attributes.Goles <= ultimo.attributes.Goles){
-                    goleadores[cont]=item;
-                    ultimo= item;
-                }
+
+            if (item.attributes.equipo.data.attributes.Grupo===null){
+                if((item.attributes.Goles !== null)&&(item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre === categoria)){
+                    if (cont=== 0){
+                        primero=item;
+                        ultimo=item;
+                        goleadores[cont]=item;
+                    }else if (item.attributes.Goles >= primero.attributes.Goles){
+                        goleadores.unshift(item); // manda al goleador al primer lugar desplazando el resto
+                        primero= item;
+                        
+                    }else if (item.attributes.Goles <= ultimo.attributes.Goles){
+                        goleadores[cont]=item;
+                        ultimo= item;
+                    }
         
-                cont=cont+1;
+                    cont=cont+1;
+                }
+            }else{
+                if((item.attributes.Goles !== null)&&((item.attributes.equipo.data.attributes.categoria.data.attributes.Nombre+" - grupo "+item.attributes.equipo.data.attributes.Grupo) === categoria)){
+                    if (cont=== 0){
+                        primero=item;
+                        ultimo=item;
+                        goleadores[cont]=item;
+                    }else if (item.attributes.Goles >= primero.attributes.Goles){
+                        goleadores.unshift(item); // manda al goleador al primer lugar desplazando el resto
+                        primero= item;
+                        
+                    }else if (item.attributes.Goles <= ultimo.attributes.Goles){
+                        goleadores[cont]=item;
+                        ultimo= item;
+                    }
+        
+                    cont=cont+1;
+                }
             }
+            
+            
 
         })
     

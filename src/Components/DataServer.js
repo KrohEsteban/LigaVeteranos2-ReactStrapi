@@ -23,8 +23,8 @@ export const CATEGORIA = gql`
 // pedimos los Partidos
       
     export const PARTIDOS = gql`
-    query queryPartidos ($start:Int){
-        partidos(sort: "Dia:desc", pagination: { start: $start, limit: 5 }) {
+    query {
+        partidos(sort: "Dia:desc", pagination: { start: 0, limit: 5000 }) {
             data {
                 id,
                 attributes{
@@ -64,4 +64,7 @@ export const CATEGORIA = gql`
         }
     }
     `; 
+    
+
+
     

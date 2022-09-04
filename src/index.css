@@ -12,6 +12,17 @@ code {
     monospace;
 }
 
+.fondonav{
+  background-color: #052c65;
+}
+
+.linkfacebook {
+  color: #000;
+  text-decoration: none;
+}
+
+
+
 .divisiontablas{
   border-top: solid 3px black ;
   padding-bottom: 40px;
@@ -36,6 +47,17 @@ code {
 
   .cardbordertop{
     width: 90% !important;
+  }
+  
+  .buttonfecha{
+    display:block !important;
+    text-align: center ;
+    
+    
+  }
+  .boton{
+    border-radius: 0px !important;
+    margin: 3px !important;
   }
 }
 

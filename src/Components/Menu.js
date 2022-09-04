@@ -8,7 +8,7 @@ export default function Menu() {
 
     return (
         <>
-          <Navbar  collapseOnSelect expand="lg" bg="primary" variant="dark">
+          <Navbar  collapseOnSelect expand="lg" className="fondonav" variant="dark">
             <Container>
                 <Navbar.Brand href="/">Liga de Veteranos</Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
