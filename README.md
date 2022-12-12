@@ -1,5 +1,5 @@
 <h1 align="center">
-  Liga de Veteranos
+  Liga de Veteranos (abandonado)
 </h1>
 
 Esta pagina se creo con el objetivo de ofrecer un medio a la asociacion de futbol de veteranos de La Pampa para poder avisar a los jugadores los resultados de las fechas y todo lo relacionado a su liga de futbol.
